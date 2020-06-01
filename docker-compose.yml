@@ -1,0 +1,42 @@
+version: '3'
+
+services:
+  
+  pgadmin:
+    image: 'dpage/pgadmin4'
+    environment:
+      - PGADMIN_LISTEN_PORT=80
+      - PGADMIN_DEFAULT_EMAIL=admin
+      - PGADMIN_DEFAULT_PASSWORD=soporte123
+    volumes:
+      - './pgadmin/servers.json:/pgadmin4/servers.json'
+    ports:
+      - '80:80'
+      
+  db:
+    image: 'kartoza/postgis:9.6-2.4'
+    hostname: postgis
+    env_file:
+      - ./postgis.env
+    ports:
+      - '5432:5432'
+    volumes:
+      - './pg/postgis-data:/var/lib/postgresql'
+      - './pg/dbbackups:/backups'
+    restart: on-failure
+    healthcheck:
+      test: "exit 0"
+    
+  dbbackups:
+    image: kartoza/pg-backup:9.6
+    hostname: pg-backups
+    volumes:
+      - './pg/dbbackups:/backups'
+      - './backups-cron:/etc/cron.d/backups-cron'
+    links:
+      - db:db
+    env_file:
+      - ./pgbackup.env
+    restart: on-failure
+    depends_on:
+      - db

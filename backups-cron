@@ -1,0 +1,11 @@
+# Ensure that this file in docker host (if mapped as volumes) 
+# 1) it is own by root user
+# 2) it is defined as 644
+ 
+# For testing - run every minute
+*/1 * * * * root /backups.sh 2>&1
+
+# Run the backups at 11pm each night
+#0 23 * * * root /backups.sh 2>&1
+
+# We need a blank line here for it to be a valid cron file
